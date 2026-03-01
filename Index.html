@@ -1,1 +1,524 @@
+<!DOCTYPE html>
 
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#060609">
+  <title>Iran-US Conflict — Live Agent</title>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔴</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔴</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Azeret+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060609; --surface: #0c0c12; --border: #141418;
+      --text: #d4d4d8; --muted: #71717a; --dim: #3f3f46; --faint: #27272a;
+      --red: #ef4444; --qatar: #8b1538; --blue: #818cf8;
+      --amber: #f59e0b; --green: #10b981;
+      --mono: 'Azeret Mono', monospace; --serif: 'Instrument Serif', Georgia, serif;
+    }
+    body { background: var(--bg); color: var(--text); font-family: var(--serif); min-height: 100vh; min-height: 100dvh; -webkit-font-smoothing: antialiased; }
+
+```
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(1.5)} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes borderGlow { 0%,100%{border-color:rgba(139,21,56,0.35)} 50%{border-color:rgba(139,21,56,0.75)} }
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+@keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+.fi { animation: fadeIn .5s ease forwards; }
+.fi-d1{animation-delay:.1s;opacity:0} .fi-d2{animation-delay:.2s;opacity:0} .fi-d3{animation-delay:.3s;opacity:0}
+.shimmer { background:linear-gradient(90deg,#111 25%,#1a1a1f 50%,#111 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:3px; }
+
+/* HEADER */
+.header {
+  position:sticky; top:0; z-index:50;
+  background:rgba(6,6,9,0.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border); padding:10px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.header-left { display:flex; align-items:center; gap:10px; }
+.live-dot { width:7px; height:7px; border-radius:50%; background:var(--red); display:inline-block; animation:pulse 1.5s infinite; }
+.live-dot.loading { background:var(--amber); }
+.live-label { font-family:var(--mono); font-size:9px; color:var(--red); text-transform:uppercase; letter-spacing:2.5px; }
+.live-label.loading { color:var(--amber); }
+.sub-label { font-family:var(--mono); font-size:8px; color:var(--faint); letter-spacing:1px; }
+.header-right { display:flex; align-items:center; gap:10px; }
+.countdown { font-family:var(--mono); font-size:8px; color:var(--dim); }
+
+.rbtn {
+  background:none; border:1px solid #1e1e26; color:#52525b;
+  padding:7px 12px; font-family:var(--mono); font-size:9px;
+  cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:5px;
+  text-transform:uppercase; letter-spacing:1.5px;
+}
+.rbtn:hover { border-color:var(--qatar); color:var(--qatar); }
+.rbtn.spin svg { animation:spin .8s linear infinite; }
+
+/* CONTENT */
+.content { padding:0 14px 100px; max-width:720px; margin:0 auto; }
+
+.urgency-badge {
+  margin:18px 0 10px; padding:5px 10px; display:inline-flex;
+  font-family:var(--mono); font-size:9px; font-weight:700;
+  text-transform:uppercase; letter-spacing:2.5px;
+}
+
+.headline {
+  font-family:var(--serif); font-size:clamp(24px,5.5vw,38px);
+  font-weight:400; font-style:italic; line-height:1.12;
+  color:#fafafa; margin:0 0 14px; letter-spacing:-0.01em;
+}
+
+.summary { font-size:14px; line-height:1.7; color:#9ca3af; margin:0 0 6px; max-width:620px; }
+
+.meta {
+  font-family:var(--mono); font-size:8px; color:var(--faint);
+  margin:0 0 22px; display:flex; gap:14px; flex-wrap:wrap;
+}
+
+/* QATAR CARD */
+.qatar-card {
+  border:1px solid rgba(139,21,56,0.5);
+  background:linear-gradient(135deg, rgba(139,21,56,0.08) 0%, var(--bg) 100%);
+  margin-bottom:20px; animation:borderGlow 3s ease infinite; overflow:hidden;
+}
+.qatar-header {
+  padding:14px 16px; display:flex; justify-content:space-between; align-items:center;
+  cursor:pointer; transition:background .15s;
+}
+.qatar-header:hover { background:rgba(139,21,56,0.04); }
+.qatar-status { font-family:var(--mono); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:2px; }
+.qatar-msg { font-size:13px; color:var(--text); margin-top:4px; line-height:1.4; }
+.airspace-tag {
+  font-family:var(--mono); font-size:8px; padding:3px 8px; letter-spacing:1.5px;
+}
+.qatar-details { padding:10px 16px 14px; }
+.qatar-detail-item {
+  padding:8px 0; font-size:12px; color:#a1a1aa; line-height:1.5;
+  display:flex; gap:8px;
+}
+.qatar-detail-item:not(:last-child) { border-bottom:1px solid rgba(139,21,56,0.1); }
+
+.divider {
+  height:1px; margin:0 0 20px; opacity:0.3;
+  background:linear-gradient(90deg, var(--qatar) 0%, var(--red) 50%, transparent 100%);
+}
+
+.section-title {
+  font-family:var(--mono); font-size:9px; text-transform:uppercase;
+  letter-spacing:2.5px; color:var(--dim); margin:0 0 12px;
+}
+
+/* UPDATE CARDS */
+.upd {
+  padding:14px 16px; border-left:3px solid; margin-bottom:6px;
+  background:var(--surface); cursor:pointer; transition:background .15s;
+}
+.upd:hover { background:#12121a; }
+.upd-top { display:flex; justify-content:space-between; align-items:flex-start; gap:6px; }
+.upd-meta { display:flex; align-items:center; gap:7px; margin-bottom:5px; }
+.upd-cat { font-family:var(--mono); font-size:8px; text-transform:uppercase; letter-spacing:1.5px; }
+.upd-time { font-family:var(--mono); font-size:8px; color:var(--faint); }
+.upd-title { font-size:14px; font-weight:600; color:#e4e4e7; line-height:1.3; }
+.upd-chevron { font-size:12px; color:var(--faint); transition:transform .15s; flex-shrink:0; margin-top:3px; }
+.upd-chevron.open { transform:rotate(180deg); }
+.upd-detail {
+  font-size:12px; color:#9ca3af; line-height:1.6;
+  margin-top:9px; padding-top:9px; border-top:1px solid #151520;
+}
+
+/* FACTS */
+.fact {
+  padding:10px 14px; background:var(--surface); border:1px solid var(--border);
+  margin-bottom:5px; font-size:12px; color:#a1a1aa; line-height:1.5;
+  display:flex; gap:8px;
+}
+
+/* SOURCES */
+.source-tags { display:flex; flex-wrap:wrap; gap:5px; }
+.source-tag {
+  padding:4px 10px; background:var(--surface); border:1px solid var(--border);
+  font-family:var(--mono); font-size:9px; color:#52525b;
+}
+
+/* ERROR */
+.error-bar {
+  margin:10px 0; padding:9px 12px;
+  background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.15);
+  font-family:var(--mono); font-size:9px; color:var(--amber);
+}
+
+/* API KEY MODAL */
+.modal-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0; z-index:100;
+  background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center;
+  padding:20px;
+}
+.modal {
+  background:#111116; border:1px solid var(--border); padding:28px; max-width:420px; width:100%;
+}
+.modal h2 { font-family:var(--serif); font-size:22px; color:#fafafa; margin-bottom:6px; font-style:italic; }
+.modal p { font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:16px; }
+.modal input {
+  width:100%; padding:10px 12px; background:var(--bg); border:1px solid var(--faint);
+  color:#fafafa; font-family:var(--mono); font-size:12px; margin-bottom:12px; outline:none;
+}
+.modal input:focus { border-color:var(--qatar); }
+.modal button {
+  width:100%; padding:11px; background:var(--qatar); border:none; color:#fff;
+  font-family:var(--mono); font-size:11px; cursor:pointer; text-transform:uppercase; letter-spacing:2px;
+}
+.modal button:hover { background:#a01d45; }
+.modal .note { font-family:var(--mono); font-size:9px; color:var(--dim); margin-top:12px; line-height:1.6; }
+
+/* FOOTER */
+.footer {
+  position:fixed; bottom:0; left:0; right:0; z-index:40;
+  background:linear-gradient(transparent, var(--bg) 35%); padding:28px 14px 14px;
+}
+.footer-text {
+  font-family:var(--mono); font-size:7px; color:#1e1e26;
+  text-align:center; text-transform:uppercase; letter-spacing:2px;
+}
+```
+
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+const REFRESH_MS = 15 * 60 * 1000;
+
+const SYSTEM_PROMPT = `You are a concise breaking news analyst covering the Iran-US conflict with SPECIAL FOCUS on Qatar and Gulf state impacts. Based on the latest web search results, provide a structured JSON briefing.
+
+IMPORTANT: Always search for Qatar-specific updates including: Al Udeid Air Base status, Doha missile interceptions, Qatar airspace/flight status, Qatar diplomatic statements, impact on residents in Qatar, and Gulf state sovereignty violations.
+
+Respond ONLY with valid JSON, no markdown, no backticks, no preamble.
+
+JSON schema:
+{
+  "headline": "One-line headline (max 120 chars)",
+  "urgency": "CRITICAL" | "HIGH" | "ELEVATED" | "MODERATE",
+  "summary": "2-3 sentence overview",
+  "qatarAlert": {
+    "status": "DANGER" | "CAUTION" | "MONITORING",
+    "message": "Current safety status for people in Qatar (1-2 sentences)",
+    "airspace": "OPEN" | "CLOSED" | "RESTRICTED",
+    "details": ["detail 1", "detail 2", "detail 3"]
+  },
+  "updates": [
+    {
+      "time": "approximate time",
+      "title": "Short title",
+      "detail": "1-2 sentence detail",
+      "category": "MILITARY" | "DIPLOMATIC" | "QATAR" | "GULF" | "HUMANITARIAN"
+    }
+  ],
+  "keyFacts": ["fact 1", "fact 2", "fact 3", "fact 4", "fact 5"],
+  "sources": ["source 1", "source 2", "source 3"]
+}
+Put QATAR and GULF updates first. Be factual.`;
+
+const FALLBACK = {
+  headline: "US-Israel Strike Iran — Qatar Hit by 66 Iranian Missiles in Retaliation",
+  urgency: "CRITICAL",
+  summary: "The US and Israel launched joint strikes on Iran on Feb 28. Iran retaliated by firing 66 missiles at Qatar targeting Al Udeid Air Base. 16 people injured. Qatar airspace closed.",
+  qatarAlert: {
+    status: "DANGER",
+    message: "Active missile threat. Qatar intercepted three waves of Iranian missiles. Stay indoors and away from military sites.",
+    airspace: "CLOSED",
+    details: [
+      "66 missiles fired at Qatar — all intercepted by air defenses",
+      "16 injured from shrapnel; 1 in serious condition",
+      "Al Udeid Air Base was primary target",
+      "Qatar airspace CLOSED — Qatar Airways flights suspended",
+      "Interior Ministry: Stay away from military sites",
+      "Third wave intercepted over Doha",
+      "Qatar reserves right to respond under international law"
+    ]
+  },
+  updates: [
+    {time:"Ongoing",title:"Third Missile Wave Intercepted",detail:"Qatar MOD confirmed interception of third wave. Qatar reserves right to respond.",category:"QATAR"},
+    {time:"Hours ago",title:"16 Injured From Shrapnel",detail:"114 reports of falling shrapnel. One person serious. Stay indoors.",category:"QATAR"},
+    {time:"Feb 28",title:"Al Udeid Base Targeted",detail:"Iran fired at Al Udeid Air Base. Qatar condemned as sovereignty violation.",category:"QATAR"},
+    {time:"Feb 28",title:"Gulf States Under Fire",detail:"UAE, Bahrain, Kuwait also struck. One killed in Abu Dhabi. Drone hit near US Navy HQ in Bahrain.",category:"GULF"},
+    {time:"Feb 28",title:"Khamenei Killed in Tehran",detail:"Supreme Leader killed in US-Israel strikes. 40 days mourning declared. IRGC pledges revenge.",category:"MILITARY"},
+    {time:"Feb 28",title:"201+ Killed Including Children",detail:"Minab school airstrike killed 80+. At least 201 total casualties in Iran.",category:"HUMANITARIAN"},
+    {time:"Feb 28",title:"Oman: 'Not Your War'",detail:"Omani FM urged US restraint. EU called for maximum restraint. UN emergency session held.",category:"DIPLOMATIC"}
+  ],
+  keyFacts: [
+    "66 Iranian missiles fired at Qatar — all intercepted",
+    "Al Udeid Air Base was primary Qatar target",
+    "Qatar airspace closed; flights suspended",
+    "Iran: all US/Israeli assets are legitimate targets",
+    "Nuclear talks collapsed days before the attack"
+  ],
+  sources: ["Al Jazeera","CNN","PBS NewsHour","Euronews"]
+};
+
+const CAT_COLORS = {
+  MILITARY:"#ef4444", DIPLOMATIC:"#818cf8", QATAR:"#8b1538",
+  GULF:"#f59e0b", HUMANITARIAN:"#10b981", DOMESTIC:"#f59e0b"
+};
+const CAT_ICONS = {
+  MILITARY:"⚔️", DIPLOMATIC:"🌐", QATAR:"🇶🇦",
+  GULF:"🏜️", HUMANITARIAN:"🏥", DOMESTIC:"🏛️"
+};
+const URG_COLORS = { CRITICAL:"#ef4444", HIGH:"#f97316", ELEVATED:"#eab308", MODERATE:"#3b82f6" };
+const Q_COLORS = { DANGER:"#ef4444", CAUTION:"#f59e0b", MONITORING:"#3b82f6" };
+
+// STATE
+let state = {
+  apiKey: localStorage.getItem('iran_agent_key') || '',
+  data: null,
+  loading: true,
+  error: null,
+  lastRefresh: null,
+  nextRefresh: null,
+  countdown: '--:--',
+  refreshing: false,
+  expandedUpdate: null,
+  showQatarDetails: true,
+  showModal: false
+};
+
+function setState(patch) {
+  Object.assign(state, patch);
+  render();
+}
+
+// API
+async function fetchNews(manual) {
+  if (manual) setState({refreshing:true});
+  setState({loading:true, error:null});
+
+  if (!state.apiKey) {
+    setState({loading:false, data:FALLBACK, showModal:true, lastRefresh:new Date(), nextRefresh:new Date(Date.now()+REFRESH_MS)});
+    return;
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system:SYSTEM_PROMPT,
+        messages:[{role:'user',content:'Search for the absolute latest news on the Iran-US conflict RIGHT NOW. ESPECIALLY search for Qatar missile attacks, Al Udeid base, Doha safety, Qatar airspace, Gulf state impacts, military ops, diplomatic reactions, casualties.'}],
+        tools:[{type:'web_search_20250305',name:'web_search'}]
+      })
+    });
+    if (!res.ok) throw new Error('API '+res.status);
+    const result = await res.json();
+    const text = result.content?.filter(b=>b.type==='text').map(b=>b.text).join('\n');
+    if (text) {
+      const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+      const now = new Date();
+      setState({data:parsed, lastRefresh:now, nextRefresh:new Date(now.getTime()+REFRESH_MS), loading:false, refreshing:false});
+    } else throw new Error('Empty');
+  } catch(e) {
+    const now = new Date();
+    setState({
+      error:e.message, loading:false, refreshing:false,
+      data: state.data || FALLBACK,
+      lastRefresh: state.lastRefresh || now,
+      nextRefresh: state.nextRefresh || new Date(now.getTime()+REFRESH_MS)
+    });
+  }
+}
+
+// COUNTDOWN
+setInterval(() => {
+  if (state.nextRefresh) {
+    const diff = state.nextRefresh.getTime() - Date.now();
+    if (diff <= 0) { state.countdown = 'Updating…'; }
+    else {
+      const m = Math.floor(diff/60000);
+      const s = Math.floor((diff%60000)/1000);
+      state.countdown = m+':'+String(s).padStart(2,'0');
+    }
+    const el = document.getElementById('countdown');
+    if (el) el.textContent = state.countdown;
+  }
+}, 1000);
+
+// AUTO REFRESH
+setInterval(() => fetchNews(), REFRESH_MS);
+
+// RENDER
+function render() {
+  const {data,loading,error,lastRefresh,refreshing,expandedUpdate,showQatarDetails,showModal,apiKey} = state;
+  const app = document.getElementById('app');
+  const urg = data ? URG_COLORS[data.urgency]||URG_COLORS.HIGH : URG_COLORS.HIGH;
+
+  let html = '';
+
+  // MODAL
+  if (showModal || !apiKey) {
+    html += `<div class="modal-overlay"><div class="modal">
+      <h2>🔑 API Key Required</h2>
+      <p>This agent uses Claude's API with web search to fetch live news every 15 minutes. Enter your Anthropic API key to enable live updates.</p>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." value="${apiKey||''}" />
+      <button onclick="saveKey()">Activate Live Updates</button>
+      <p class="note">Your key is stored locally on this device only — never sent anywhere except Anthropic's API. You can get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--qatar)">console.anthropic.com</a></p>
+      ${data ? '<p class="note" style="margin-top:8px;cursor:pointer;color:var(--qatar)" onclick="dismissModal()">← Skip for now (use cached data)</p>' : ''}
+    </div></div>`;
+  }
+
+  // HEADER
+  html += `<div class="header">
+    <div class="header-left">
+      <span class="live-dot ${loading?'loading':''}"></span>
+      <span class="live-label ${loading?'loading':''}">${loading?'UPDATING':'LIVE'}</span>
+      <span class="sub-label">IRAN–US • QATAR</span>
+    </div>
+    <div class="header-right">
+      <span class="countdown" id="countdown">${state.countdown}</span>
+      <button class="rbtn ${refreshing?'spin':''}" onclick="fetchNews(true)" ${refreshing?'disabled':''}>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      </button>
+    </div>
+  </div>`;
+
+  html += '<div class="content">';
+
+  // LOADING
+  if (loading && !data) {
+    html += `<div style="padding:28px 0">
+      <div class="shimmer" style="height:26px;width:80%;margin-bottom:14px"></div>
+      <div class="shimmer" style="height:14px;width:100%;margin-bottom:7px"></div>
+      <div class="shimmer" style="height:14px;width:65%;margin-bottom:20px"></div>
+      <div class="shimmer" style="height:120px;width:100%;margin-bottom:10px"></div>
+      <div class="shimmer" style="height:80px;width:100%"></div>
+    </div>`;
+  }
+
+  if (error && data) {
+    html += `<div class="error-bar">⚠ Update failed — showing cached data. Retrying soon.</div>`;
+  }
+
+  if (data) {
+    // URGENCY
+    html += `<div class="fi fi-d1"><span class="urgency-badge" style="background:${urg}15;border:1px solid ${urg};color:${urg}">${data.urgency}</span></div>`;
+
+    // HEADLINE
+    html += `<h1 class="headline fi fi-d2">${data.headline}</h1>`;
+    html += `<p class="summary fi fi-d3">${data.summary}</p>`;
+
+    // META
+    const time = lastRefresh ? lastRefresh.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+    html += `<div class="meta"><span>UPDATED ${time}</span><span>REFRESH: 15MIN</span></div>`;
+
+    // QATAR CARD
+    if (data.qatarAlert) {
+      const qc = Q_COLORS[data.qatarAlert.status]||Q_COLORS.CAUTION;
+      const airC = data.qatarAlert.airspace==='OPEN'?'#10b981':'#ef4444';
+      const airBg = data.qatarAlert.airspace==='OPEN'?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)';
+
+      html += `<div class="qatar-card fi">
+        <div class="qatar-header" onclick="toggleQatar()">
+          <div style="display:flex;align-items:center;gap:10px;flex:1">
+            <span style="font-size:18px">🇶🇦</span>
+            <div>
+              <div class="qatar-status" style="color:${qc}">Qatar — ${data.qatarAlert.status}</div>
+              <div class="qatar-msg">${data.qatarAlert.message}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            ${data.qatarAlert.airspace?`<span class="airspace-tag" style="background:${airBg};color:${airC}">✈ ${data.qatarAlert.airspace}</span>`:''}
+            <span style="color:var(--dim);font-size:12px;transform:rotate(${showQatarDetails?'180':'0'}deg);transition:transform .2s">▾</span>
+          </div>
+        </div>`;
+
+      if (showQatarDetails && data.qatarAlert.details) {
+        html += '<div class="qatar-details">';
+        data.qatarAlert.details.forEach((d,i) => {
+          html += `<div class="qatar-detail-item" ${i<data.qatarAlert.details.length-1?'style="border-bottom:1px solid rgba(139,21,56,0.1)"':''}>
+            <span style="color:var(--qatar);flex-shrink:0">▸</span><span>${d}</span>
+          </div>`;
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+    html += '<div class="divider"></div>';
+
+    // UPDATES
+    html += '<h2 class="section-title">Latest Developments</h2>';
+    (data.updates||[]).forEach((u,i) => {
+      const c = CAT_COLORS[u.category]||CAT_COLORS.MILITARY;
+      const icon = CAT_ICONS[u.category]||'📌';
+      const open = expandedUpdate === i;
+      html += `<div class="upd fi" style="border-left-color:${c};${open?'background:'+c+'12':''};animation-delay:${.08+i*.05}s;opacity:0" onclick="toggleUpdate(${i})">
+        <div class="upd-top">
+          <div style="flex:1">
+            <div class="upd-meta">
+              <span style="font-size:12px">${icon}</span>
+              <span class="upd-cat" style="color:${c}">${u.category}</span>
+              <span class="upd-time">${u.time}</span>
+            </div>
+            <div class="upd-title">${u.title}</div>
+          </div>
+          <span class="upd-chevron ${open?'open':''}">▾</span>
+        </div>
+        ${open?`<p class="upd-detail">${u.detail}</p>`:''}
+      </div>`;
+    });
+
+    // KEY FACTS
+    html += '<h2 class="section-title" style="margin-top:24px">Key Facts</h2>';
+    (data.keyFacts||[]).forEach((f,i) => {
+      html += `<div class="fact fi" style="animation-delay:${.3+i*.04}s;opacity:0">
+        <span style="color:var(--red);flex-shrink:0">▸</span>${f}
+      </div>`;
+    });
+
+    // SOURCES
+    html += '<h2 class="section-title" style="margin-top:24px">Sources</h2><div class="source-tags">';
+    (data.sources||[]).forEach(s => { html += `<span class="source-tag">${s}</span>`; });
+    html += '</div>';
+
+    // SETTINGS
+    html += `<div style="margin-top:28px;padding:14px;background:rgba(139,21,56,0.04);border:1px solid rgba(139,21,56,0.12)">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--qatar);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">⚙️ Settings</div>
+      <div style="font-size:12px;color:var(--muted);cursor:pointer" onclick="setState({showModal:true})">
+        ${apiKey ? '✅ API key configured — tap to change' : '⚠️ No API key — tap to add for live updates'}
+      </div>
+    </div>`;
+  }
+
+  html += '</div>';
+
+  // FOOTER
+  html += `<div class="footer"><div class="footer-text">AI News Agent • Qatar Focus • Auto-refresh 15 min</div></div>`;
+
+  app.innerHTML = html;
+}
+
+// ACTIONS
+function saveKey() {
+  const val = document.getElementById('apiKeyInput')?.value?.trim();
+  if (val) {
+    localStorage.setItem('iran_agent_key', val);
+    setState({apiKey:val, showModal:false});
+    fetchNews();
+  }
+}
+function dismissModal() { setState({showModal:false}); }
+function toggleQatar() { setState({showQatarDetails:!state.showQatarDetails}); }
+function toggleUpdate(i) { setState({expandedUpdate:state.expandedUpdate===i?null:i}); }
+
+// INIT
+fetchNews();
+</script>
+
+</body>
+</html>
